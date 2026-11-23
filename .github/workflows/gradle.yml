@@ -7,15 +7,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '11'
-          distribution: 'adopt'
+          distribution: 'temurin'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Start SUT
-        run: java -jar ./artifacts/app-ibank.jar &
+        run: |
+          java -jar ./artifacts/app-ibank.jar &
+          sleep 5
       - name: Build with Gradle
-        run: ./gradlew test --info
+        env:
+          SELENIDE_HEADLESS: true
+          CHROMEOPTIONS_ARGS: "--no-sandbox,--disable-dev-shm-usage"
+        run: ./gradlew test -Dselenide.headless=true --info
